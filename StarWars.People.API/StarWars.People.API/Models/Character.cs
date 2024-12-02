@@ -11,9 +11,6 @@ namespace StarWars.People.API.Models {
         public string? Gender { get; set; }
         public string? Homeworld { get; set; }
         public List<string>? Films { get; set; }
-        public List<string>? Species { get; set; }
-        public List<string>? Vehicles { get; set; }
-        public List<string>? Starships { get; set; }
         public DateTime Created { get; set; }
         public DateTime Edited { get; set; }
         public required string Url { get; set; }

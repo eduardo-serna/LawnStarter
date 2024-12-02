@@ -1,7 +1,10 @@
+using StackExchange.Redis;
+
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+builder.Services.AddSingleton<IConnectionMultiplexer>(ConnectionMultiplexer.Connect("localhost:5001"));
 builder.Services.AddHttpClient<CharacterService>();
 
 var app = builder.Build();
@@ -15,12 +18,12 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
-app.MapGet("/search", async (string name, CharacterService characterService) =>
+app.MapGet("/get", async (CharacterService characterService) =>
 {
         try
         {
-            var character = await characterService.GetCharacterAsync(name);
-            return Results.Ok(character);
+            var character = await characterService.GetCharactersAsync();
+            return character;
         } 
         catch (HttpRequestException ex) 
         {
