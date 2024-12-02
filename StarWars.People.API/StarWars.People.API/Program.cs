@@ -15,7 +15,7 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
-app.MapGet("/search", async (string name, IServiceProvider services, CharacterService characterService) =>
+app.MapGet("/search", async (string name, CharacterService characterService) =>
 {
         try
         {

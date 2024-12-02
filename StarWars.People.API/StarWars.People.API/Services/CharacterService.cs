@@ -37,14 +37,21 @@ public class CharacterService
             }
 
             // If a name is provided, filter the results
-            if (!string.IsNullOrWhiteSpace(name))
+            characters = FilterResults(name, characters);
+        }
+
+        return characters;
+    }
+
+    public List<Character> FilterResults (string name, List<Character> characters) 
+    {
+         if (!string.IsNullOrWhiteSpace(name))
             {
                 characters = characters
                     .Where(c => c.Name!.Contains(name, StringComparison.OrdinalIgnoreCase))
                     .ToList();
             }
-        }
-
-        return characters;
+        
+        return characters ?? new List<Character>();
     }
 }
