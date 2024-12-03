@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
 import { ApiService } from '../../services/ApiService';
 import { debounceTime, distinctUntilChanged, Subject, switchMap } from 'rxjs';
 
@@ -9,8 +9,11 @@ import { debounceTime, distinctUntilChanged, Subject, switchMap } from 'rxjs';
   styleUrl: './search.component.scss'
 })
 export class SearchComponent implements OnInit {
-  private searchSubject = new Subject<string>();
-  results: string[] = []; // Store results here
+  @ViewChild('peopleCheckbox')
+  peopleCheckbox!: ElementRef;
+
+  private searchSubject = new Subject<string>(); //Observable
+  results: { name: string; resources: string }[] = [];
   
   constructor(private apiService: ApiService) {}
 
@@ -20,10 +23,10 @@ export class SearchComponent implements OnInit {
       .pipe(
         debounceTime(300), // Wait 300ms after the last keystroke
         distinctUntilChanged(), // Only proceed if the value has changed
-        switchMap((query) => this.apiService.get()) // Switch to new observable
+        switchMap((query) => this.apiService.filter(query, this.isPeopleChecked))
       )
       .subscribe({
-        next: (data: string[]) => {
+        next: (data) => {
           this.results = data;
         },
         error: (error) => {
@@ -36,8 +39,12 @@ export class SearchComponent implements OnInit {
   }
 
     // Triggered by input event in the template
-    onSearch(event: Event) {
-      const input = (event.target as HTMLInputElement).value;
-      this.searchSubject.next(input); // Push the input to the Subject
-    }
+  onSearch(event: Event) {
+    const input = (event.target as HTMLInputElement).value;
+    this.searchSubject.next(input); // Push the input to the Subject
+  }
+
+  get isPeopleChecked(): boolean {
+    return this.peopleCheckbox.nativeElement.checked;
+  }
 }
