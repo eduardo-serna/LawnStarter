@@ -1,5 +1,6 @@
 import { Component } from '@angular/core';
 import { NgForOf } from '@angular/common'; 
+import { ApiService } from '../../services/ApiService';
 
 @Component({
   selector: 'app-search-results',
@@ -8,9 +9,16 @@ import { NgForOf } from '@angular/common';
   styleUrl: './search-results.component.scss'
 })
 export class SearchResultsComponent {
-  items = [
-    { name: 'Apple' },
-    { name: 'Banana' },
-    { name: 'Orange' }
-  ];
+
+  results: { name: string; resources: string, objectType: string }[] = [];
+  constructor(private apiService: ApiService) {}
+
+  ngOnInit() {
+    this.apiService.filteredResults$.subscribe({
+      next: (data) => {
+        this.results = data; // Update results whenever the shared state changes
+      },
+      error: (error) => console.error('Error subscribing to results:', error),
+    });
+  }
 }

@@ -1,6 +1,6 @@
 import { HttpClient } from "@angular/common/http";
 import { Injectable } from "@angular/core";
-import { map, Observable, of, tap } from "rxjs";
+import { BehaviorSubject, map, Observable, of, tap } from "rxjs";
 
 @Injectable({
     providedIn: 'root'
@@ -9,6 +9,10 @@ export class ApiService {
   apiUrlPeople = 'http://localhost:5069/get';
   apiUrlFilm = '';
   private cache: { name: string; resources: string, objectType: string}[] | null = null; // Store all cached data
+
+  // Shared state for filtered results
+  private filteredResultsSubject = new BehaviorSubject<{ name: string; resources: string, objectType: string }[]>([]);
+  filteredResults$ = this.filteredResultsSubject.asObservable(); // Observable for other components
 
   constructor(private http: HttpClient) { }
 
@@ -39,6 +43,7 @@ export class ApiService {
       const filteredResults = this.cache.filter((item) =>
         item.name.toLowerCase().includes(query.toLowerCase())
       );
+      this.filteredResultsSubject.next(filteredResults); // Update the shared state
       return of(filteredResults);
     }
 
@@ -46,7 +51,8 @@ export class ApiService {
       map((data) =>
         data.filter((item) => item.objectType === (isPeople ? 'people' : 'film') &&
         item.name.toLowerCase().includes(query.toLowerCase()))
-      )
+      ),
+      tap((filteredResults) => this.filteredResultsSubject.next(filteredResults)) // Update the shared state
     );
   }
 }
