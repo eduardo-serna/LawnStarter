@@ -13,7 +13,7 @@ export class SearchComponent implements OnInit {
   peopleCheckbox!: ElementRef;
 
   private searchSubject = new Subject<string>(); //Observable
-  results: { name: string; resources: string }[] = [];
+  results: { name: string; resources: string, objectType: string }[] = [];
   
   constructor(private apiService: ApiService) {}
 

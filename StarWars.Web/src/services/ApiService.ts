@@ -8,7 +8,7 @@ import { map, Observable, of, tap } from "rxjs";
 export class ApiService {
   apiUrlPeople = 'http://localhost:5069/get';
   apiUrlFilm = '';
-  private cache: { name: string; resources: string }[] | null = null; // Store all cached data
+  private cache: { name: string; resources: string, objectType: string}[] | null = null; // Store all cached data
 
   constructor(private http: HttpClient) { }
 
@@ -22,7 +22,8 @@ export class ApiService {
     return this.http.get<any[]>(`${apiUrl}`).pipe(
         map((response) =>  response.map((item) => ({
           name: item.name,
-          films: item.films}))
+          resources: isPeople ? item.films : item.characters,
+          objectType: isPeople ? 'people' : 'film'}))
         ),
         tap((data) => (this.cache = data)) // Cache the data
       );
@@ -32,7 +33,7 @@ export class ApiService {
    * Filters the cached data based on the query.
    * If the cache is empty, it fetches data from the API first.
    */
-  filter(query: string, isPeople: boolean): Observable<{ name: string; resources: string }[]> {
+  filter(query: string, isPeople: boolean): Observable<{ name: string; resources: string; objectType: string }[]> {
     if (this.cache) {
       // Perform filtering on the cache
       const filteredResults = this.cache.filter((item) =>
@@ -43,7 +44,7 @@ export class ApiService {
 
     return this.getAll(isPeople).pipe(
       map((data) =>
-        data.filter((item) =>
+        data.filter((item) => item.objectType === (isPeople ? 'people' : 'film') &&
         item.name.toLowerCase().includes(query.toLowerCase()))
       )
     );
